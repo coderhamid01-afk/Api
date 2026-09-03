@@ -6,7 +6,6 @@ app = Flask(__name__)
 def home():
     movie_id = request.args.get('id')
     
-    # Agar ID nahi di toh API status dikhao
     if not movie_id:
         return jsonify({
             "status": "online",
@@ -14,7 +13,6 @@ def home():
             "message": "API Active! Test karne ke liye ?id=157336 lagao."
         })
     
-    # AutoEmbed Player URL (Multi-Audio & Subtitles)
     stream_url = f"https://player.autoembed.cc/embed/movie/{movie_id}"
     
     player_html = f"""

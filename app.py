@@ -4,36 +4,53 @@ from flask_cors import CORS
 app = Flask(__name__)
 CORS(app)
 
-# Main Player Route - Tere Vercel Link Par Chalega
+# Main Player Route - 100% Ad-Free Shield
 @app.route('/', methods=['GET'])
 def home():
     tmdb_id = request.args.get('id')
     
-    # Agar bina ID ke link khole toh status dikhao
     if not tmdb_id:
         return jsonify({
             "status": "online",
             "message": "Teri Vercel API Active Hai! Test karne ke liye URL ke aage ?id=157336 lagao."
         })
     
-    # JS-based Pop-up Blocker + Clean Embed (Bina sandbox error ke)
+    # Advanced Multi-Layer Anti-Popup JS Script
     player_html = f"""
     <!DOCTYPE html>
     <html lang="en">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Movie Player - {tmdb_id}</title>
+        <title>Ad-Free Player - {tmdb_id}</title>
         <style>
             * {{ margin: 0; padding: 0; box-sizing: border-box; background-color: #000; }}
             body, html {{ width: 100%; height: 100%; overflow: hidden; display: flex; justify-content: center; align-items: center; }}
-            iframe {{ width: 100%; height: 100%; border: none; }}
+            iframe {{ width: 100%; height: 100%; border: none; position: absolute; top: 0; left: 0; z-index: 1; }}
         </style>
         <script>
-            // Automatic Pop-up Tabs & New Windows Blocker
+            // 1. Kill window.open completely (No New Tabs)
             window.open = function() {{ return null; }};
+            
+            // 2. Prevent focus loss (No Popunders)
             window.onblur = function() {{
-                setTimeout(function() {{ window.focus(); }}, 50);
+                setTimeout(function() {{ window.focus(); }}, 10);
+            }};
+
+            // 3. Freeze top-level location (No Page Redirects)
+            try {{
+                var origLocation = window.location;
+                Object.defineProperty(window, 'location', {{
+                    configurable: false,
+                    enumerable: true,
+                    get: function() {{ return origLocation; }},
+                    set: function(val) {{ return origLocation; }}
+                }});
+            }} catch(e) {{}}
+
+            // 4. Block malicious unload redirects
+            window.onbeforeunload = function() {{
+                return "Redirect blocked!";
             }};
         </script>
     </head>
@@ -48,7 +65,7 @@ def home():
     """
     return render_template_string(player_html)
 
-# JSON Route - Android App ke liye
+# JSON Route - Android App Ke Liye
 @app.route('/get-stream', methods=['GET'])
 def get_stream():
     tmdb_id = request.args.get('id', '157336')
@@ -58,7 +75,7 @@ def get_stream():
         "success": True,
         "tmdb_id": tmdb_id,
         "stream_url": clean_player_url,
-        "type": "vercel_clean_player"
+        "type": "adfree_vercel_player"
     })
 
 if __name__ == '__main__':

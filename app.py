@@ -1,62 +1,66 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, render_template_string
 from flask_cors import CORS
-import requests
-import re
 
 app = Flask(__name__)
-CORS(app) # Android app se API calls block na ho isliye CORS enabled hai
+CORS(app)
 
-# Health Check Route
+# Health Check
 @app.route('/', methods=['GET'])
 def home():
     return jsonify({
         "status": "online",
-        "message": "Movie Streaming API Active Hai!"
+        "message": "Teri Vercel Ad-Free Movie API Active Hai!"
     })
 
-# Main Stream Fetcher Route
+# 1. AD-FREE PLAYER ROUTE (Teri Domain Par Chalega - 0 Popups)
+@app.route('/play', methods=['GET'])
+def play_movie():
+    tmdb_id = request.args.get('id', '157336')
+    
+    # HTML Sandbox jo Pop-up Ads aur Redirects ko 100% KILL kar deta hai
+    player_html = f"""
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Movie Player - {tmdb_id}</title>
+        <style>
+            * {{ margin: 0; padding: 0; box-sizing: border-box; background-color: #000; }}
+            body, html {{ width: 100%; height: 100%; overflow: hidden; display: flex; justify-content: center; align-items: center; }}
+            iframe {{ width: 100%; height: 100%; border: none; }}
+        </style>
+    </head>
+    <body>
+        <!-- Sandbox attribute disables popups, new windows, and redirects -->
+        <iframe 
+            src="https://vidsrc.me/embed/movie/{tmdb_id}" 
+            sandbox="allow-scripts allow-same-origin allow-forms allow-presentation"
+            allowfullscreen>
+        </iframe>
+    </body>
+    </html>
+    """
+    return render_template_string(player_html)
+
+# 2. JSON API ROUTE (Jo App ke liye Clean Player Link Dega)
 @app.route('/get-stream', methods=['GET'])
 def get_stream():
     tmdb_id = request.args.get('id')
     
     if not tmdb_id:
-        return jsonify({
-            "success": False, 
-            "error": "TMDB ID missing hai! Link ke aage ?id=TMDB_ID paas karo."
-        }), 400
+        return jsonify({"success": False, "error": "TMDB ID required hai"}), 400
 
-    try:
-        headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
-            'Referer': 'https://vidsrc.me/'
-        }
-        
-        target_url = f"https://vidsrc.me/embed/movie/{tmdb_id}"
-        response = requests.get(target_url, headers=headers, timeout=10)
-        
-        # Background Scraping for .m3u8 direct stream link
-        m3u8_links = re.findall(r'file:\s*["\'](https?://[^\s"\']+\.m3u8[^\s"\']*)["\']', response.text)
-        
-        if m3u8_links:
-            return jsonify({
-                "success": True,
-                "tmdb_id": tmdb_id,
-                "stream_url": m3u8_links[0],
-                "type": "hls_direct",
-                "note": "Direct ExoPlayer Playable (.m3u8)"
-            })
-        else:
-            return jsonify({
-                "success": True,
-                "tmdb_id": tmdb_id,
-                "stream_url": target_url,
-                "type": "embed_fallback",
-                "note": "Embed fallback link"
-            })
-
-    except Exception as e:
-        return jsonify({"success": False, "error": str(e)}), 500
+    # Clean Vercel Player Link
+    clean_player_url = f"https://api-kappa-seven-44.vercel.app/play?id={tmdb_id}"
+    
+    return jsonify({
+        "success": True,
+        "tmdb_id": tmdb_id,
+        "stream_url": clean_player_url,
+        "type": "adfree_vercel_player",
+        "note": "Is link par 0 popups aur 0 ads hain"
+    })
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
-

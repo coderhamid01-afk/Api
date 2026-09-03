@@ -1,40 +1,30 @@
 from flask import Flask, jsonify, request, render_template_string
 from flask_cors import CORS
 
-app = FlaskName = Flask(__name__)
+app = Flask(__name__)
 CORS(app)
 
 @app.route('/', methods=['GET'])
 def home():
-    movie_id = request.args.get('id')
+    movie_id = request.args.get('id', '157336')
     
-    if not movie_id:
-        return jsonify({
-            "status": "online",
-            "message": "VidSrc Stable API Active! Test with ?id=157336 (TMDB) or ?id=tt0816692 (IMDB)"
-        })
+    # Stable VidSrc link jo pehle badhiya chal raha tha
+    stream_url = f"https://vidsrc.me/embed/movie/{movie_id}"
     
-    # Handle both TMDB ID and IMDb ID for VidSrc
-    if str(movie_id).startswith('tt'):
-        stream_url = f"https://vidsrc.xyz/embed/movie?imdb={movie_id}"
-    else:
-        stream_url = f"https://vidsrc.xyz/embed/movie?tmdb={movie_id}"
-    
-    # Clean, High-Speed Fullscreen Player with VidSrc Stable Engine
     player_html = f"""
     <!DOCTYPE html>
     <html lang="en">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Movie Stream</title>
+        <title>Movie Player</title>
         <style>
             * {{ margin: 0; padding: 0; box-sizing: border-box; background-color: #000; }}
             body, html {{ width: 100%; height: 100%; overflow: hidden; }}
             iframe {{ width: 100vw; height: 100vh; border: none; display: block; }}
         </style>
         <script>
-            // Anti-Ad / Anti-Popup Shield
+            // Silent Pop-up & Ad Blocker
             window.open = function() {{ return null; }};
             window.onblur = function() {{ setTimeout(function() {{ window.focus(); }}, 10); }};
         </script>
@@ -59,7 +49,7 @@ def get_stream():
         "success": True,
         "movie_id": movie_id,
         "stream_url": clean_player_url,
-        "type": "vidsrc_stable_player"
+        "type": "clean_player"
     })
 
 if __name__ == '__main__':

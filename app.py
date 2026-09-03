@@ -1,8 +1,6 @@
 from flask import Flask, jsonify, request, render_template_string
-from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app)
 
 @app.route('/', methods=['GET'])
 def home():
@@ -16,7 +14,7 @@ def home():
             "message": "API Active! Test karne ke liye ?id=157336 lagao."
         })
     
-    # AutoEmbed Player URL (Best for Multi-Audio & Subtitles)
+    # AutoEmbed Player URL (Multi-Audio & Subtitles)
     stream_url = f"https://player.autoembed.cc/embed/movie/{movie_id}"
     
     player_html = f"""
@@ -31,7 +29,6 @@ def home():
             body, html {{ width: 100%; height: 100%; overflow: hidden; position: relative; }}
             iframe {{ width: 100vw; height: 100vh; border: none; position: absolute; top: 0; left: 0; z-index: 1; }}
             
-            /* Transparent Click-Shield Overlay to block initial ad trigger */
             #adShieldOverlay {{
                 position: absolute;
                 top: 0;
@@ -44,11 +41,9 @@ def home():
             }}
         </style>
         <script>
-            // Anti-Ad & Popup Blockers
             window.open = function() {{ return null; }};
             window.onblur = function() {{ setTimeout(function() {{ window.focus(); }}, 10); }};
             
-            // Remove shield on first interaction
             function removeShield() {{
                 var overlay = document.getElementById('adShieldOverlay');
                 if (overlay) {{ overlay.remove(); }}
@@ -63,7 +58,6 @@ def home():
     """
     return render_template_string(player_html)
 
-# Android App aur Panel integration ke liye JSON endpoint
 @app.route('/get-stream', methods=['GET'])
 def get_stream():
     movie_id = request.args.get('id', '157336')
@@ -79,4 +73,3 @@ def get_stream():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
-

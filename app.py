@@ -4,7 +4,7 @@ from flask_cors import CORS
 app = Flask(__name__)
 CORS(app)
 
-# Main Route - Direct Ad-Blocked Player
+# Main Player Route - Tere Vercel Link Par Chalega
 @app.route('/', methods=['GET'])
 def home():
     tmdb_id = request.args.get('id')
@@ -13,29 +13,35 @@ def home():
     if not tmdb_id:
         return jsonify({
             "status": "online",
-            "message": "API active hai! Test karne ke liye link ke aage ?id=157336 lagao."
+            "message": "Teri Vercel API Active Hai! Test karne ke liye URL ke aage ?id=157336 lagao."
         })
     
-    # HTML Sandbox jo Pop-up Ads ko 100% Block kar deta hai
+    # JS-based Pop-up Blocker + Clean Embed (Bina sandbox error ke)
     player_html = f"""
     <!DOCTYPE html>
     <html lang="en">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Ad-Free Player - {tmdb_id}</title>
+        <title>Movie Player - {tmdb_id}</title>
         <style>
             * {{ margin: 0; padding: 0; box-sizing: border-box; background-color: #000; }}
             body, html {{ width: 100%; height: 100%; overflow: hidden; display: flex; justify-content: center; align-items: center; }}
             iframe {{ width: 100%; height: 100%; border: none; }}
         </style>
+        <script>
+            // Automatic Pop-up Tabs & New Windows Blocker
+            window.open = function() {{ return null; }};
+            window.onblur = function() {{
+                setTimeout(function() {{ window.focus(); }}, 50);
+            }};
+        </script>
     </head>
     <body>
-        <!-- Sandbox attribute disables popups, new tabs, and redirects -->
         <iframe 
             src="https://vidsrc.me/embed/movie/{tmdb_id}" 
-            sandbox="allow-scripts allow-same-origin allow-forms allow-presentation"
-            allowfullscreen>
+            allowfullscreen 
+            allow="autoplay; encrypted-media; picture-in-picture">
         </iframe>
     </body>
     </html>
@@ -52,9 +58,8 @@ def get_stream():
         "success": True,
         "tmdb_id": tmdb_id,
         "stream_url": clean_player_url,
-        "type": "adfree_player"
+        "type": "vercel_clean_player"
     })
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
-

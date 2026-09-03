@@ -9,11 +9,12 @@ def home():
     if not movie_id:
         return jsonify({
             "status": "online",
-            "provider": "AutoEmbed (Multi-Audio)",
+            "provider": "NetMirror (Ad-Free / Multi-Content)",
             "message": "API Active! Test karne ke liye ?id=157336 lagao."
         })
     
-    stream_url = f"https://player.autoembed.cc/embed/movie/{movie_id}"
+    # NetMirror Embed URL (TMDB ID based)
+    stream_url = f"https://netmirror.app/embed/movie/{movie_id}"
     
     player_html = f"""
     <!DOCTYPE html>
@@ -21,7 +22,7 @@ def home():
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>AutoEmbed Secure Player</title>
+        <title>NetMirror Secure Player</title>
         <style>
             * {{ margin: 0; padding: 0; box-sizing: border-box; background-color: #000; }}
             body, html {{ width: 100%; height: 100%; overflow: hidden; position: relative; }}
@@ -64,9 +65,9 @@ def get_stream():
     return jsonify({
         "success": True,
         "movie_id": movie_id,
-        "provider": "AutoEmbed",
+        "provider": "NetMirror",
         "stream_url": clean_player_url,
-        "type": "multi_audio_player"
+        "type": "netmirror_player"
     })
 
 if __name__ == '__main__':

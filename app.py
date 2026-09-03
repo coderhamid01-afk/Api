@@ -4,33 +4,63 @@ app = Flask(__name__)
 
 @app.route('/', methods=['GET'])
 def home():
-    movie_id = request.args.get('id')
-    
-    # Testing interface page with a direct button to NetMirror
-    test_html = """
+    # Complete Movie Streaming & Search UI Interface
+    portal_html = """
     <!DOCTYPE html>
     <html lang="en">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>NetMirror Test Portal</title>
+        <title>Movie Stream App</title>
         <style>
-            * { margin: 0; padding: 0; box-sizing: border-box; font-family: sans-serif; background-color: #0f0f0f; color: #fff; }
-            body { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; padding: 20px; text-align: center; }
-            h1 { font-size: 24px; margin-bottom: 10px; color: #4ade80; }
-            p { color: #a1a1aa; margin-bottom: 25px; font-size: 14px; }
-            .btn { display: inline-block; background: #22c55e; color: #000; padding: 14px 28px; font-size: 16px; font-weight: bold; text-decoration: none; border-radius: 8px; box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3); }
-            .btn:hover { background: #16a34a; }
+            * { margin: 0; padding: 0; box-sizing: border-box; font-family: sans-serif; background-color: #0b0f19; color: #fff; }
+            body { padding: 20px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+            h1 { font-size: 24px; color: #38bdf8; margin-bottom: 20px; text-align: center; }
+            .search-box { width: 100%; max-width: 500px; display: flex; gap: 10px; margin-bottom: 30px; }
+            input { flex: 1; padding: 12px 16px; border-radius: 8px; border: 1px solid #334155; background: #1e293b; color: #fff; font-size: 16px; outline: none; }
+            input:focus { border-color: #38bdf8; }
+            button { background: #0284c7; border: none; padding: 12px 20px; border-radius: 8px; color: #fff; font-weight: bold; cursor: pointer; font-size: 16px; }
+            button:hover { background: #0369a1; }
+            
+            #playerContainer { width: 100%; max-width: 800px; height: 450px; background: #000; border-radius: 12px; overflow: hidden; display: none; margin-top: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); position: relative; }
+            iframe { width: 100%; height: 100%; border: none; }
+            .hint { color: #94a3b8; font-size: 14px; text-align: center; margin-top: 10px; }
         </style>
     </head>
     <body>
-        <h1>NetMirror Testing Portal</h1>
-        <p>Apne phone par testing ke liye neeche button dabao!</p>
-        <a class="btn" href="https://netmirror.app" target="_blank">Open NetMirror</a>
+        <h1>🎬 Movie Search & Watch Portal</h1>
+        
+        <div class="search-box">
+            <input type="text" id="movieIdInput" placeholder="TMDB Movie ID daalo (jaise 157336)..." />
+            <button onclick="playMovie()">Play</button>
+        </div>
+        
+        <div class="hint">Tip: Interstellar ki ID '157336' hai aur Avengers ki '24428' hai.</div>
+
+        <div id="playerContainer">
+            <iframe id="movieIframe" src="" allowfullscreen allow="autoplay; encrypted-media"></iframe>
+        </div>
+
+        <script>
+            function playMovie() {
+                var movieId = document.getElementById('movieIdInput').value.trim();
+                if(!movieId) {
+                    alert('Pehle movie ID toh daal bhai!');
+                    return;
+                }
+                
+                var container = document.getElementById('playerContainer');
+                var iframe = document.getElementById('movieIframe');
+                
+                // Yahan hum AutoEmbed ya NetMirror ka embed link set kar sakte hain
+                iframe.src = "https://player.autoembed.cc/embed/movie/" + movieId;
+                container.style.display = 'block';
+            }
+        </script>
     </body>
     </html>
     """
-    return render_template_string(test_html)
+    return render_template_string(portal_html)
 
 @app.route('/get-stream', methods=['GET'])
 def get_stream():
@@ -38,9 +68,8 @@ def get_stream():
     return jsonify({
         "success": True,
         "movie_id": movie_id,
-        "provider": "NetMirror",
-        "target_url": "https://netmirror.app",
-        "type": "webview_ready"
+        "stream_url": f"https://player.autoembed.cc/embed/movie/{movie_id}",
+        "type": "multi_audio_player"
     })
 
 if __name__ == '__main__':
